@@ -1,0 +1,21 @@
+name: Comparar Tokens
+
+on:
+  push:
+
+jobs:
+  comparar:
+    runs-on: self-hosted
+    steps:
+      - name: Comparar DEV_TOKEN con LOCAL_DEV_TOKEN
+        shell: bash
+        env:
+          DEV_TOKEN: ${{ secrets.DEV_TOKEN }}
+        run: |
+          if [ "$DEV_TOKEN" = "$LOCAL_DEV_TOKEN" ]; then
+            echo "Los tokens coinciden perfectamente."
+            exit 0
+          else
+            echo "ERROR: Los tokens no coinciden."
+            exit 1
+          fi
