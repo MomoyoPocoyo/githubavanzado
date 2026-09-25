@@ -18,8 +18,12 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
         with:
+develop
+          ref: ${{ github.head_ref || github.ref_name }}
+
           token: ${{ secrets.GITHUB_TOKEN }}
           ref: ${{ github.ref_name }}
+ main
 
       - name: Incrementar versión en README.md
         run: |
@@ -29,6 +33,11 @@ jobs:
           NEXT_VER=$((CURRENT_VER + 1))
           sed -i "s/AppVersion-$CURRENT_VER/AppVersion-$NEXT_VER ($TIMESTAMP)/g" README.md
           git config user.name "github-actions[bot]"
+ develop
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: bump version to AppVersion-$NEXT_VER" && git push)
+
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add README.md
           if ! git diff --staged --quiet; then
@@ -37,6 +46,7 @@ jobs:
           else
             echo "Sin cambios en README.md"
           fi
+ main
 
   validate-prod:
     needs: bump-version
@@ -50,8 +60,17 @@ jobs:
           $localProd = [System.Environment]::GetEnvironmentVariable('LOCAL_PROD_TOKEN', 'User')
           Write-Host "Comprobando PROD_TOKEN..."
           if ($env:PROD_TOKEN -eq $localProd) {
+develop
+            Write-Host "Tokens de produccion coinciden perfectamente."
+            exit 0
+          } else {
+            Write-Error "ERROR: PROD_TOKEN no coincide con LOCAL_PROD_TOKEN."
+            exit 1
+          }
+
               Write-Host "Tokens de produccion coinciden perfectamente."
               exit 0
           }
           Write-Error "ERROR: PROD_TOKEN no coincide con LOCAL_PROD_TOKEN."
           exit 1
+ main

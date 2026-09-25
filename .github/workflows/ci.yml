@@ -18,6 +18,27 @@ jobs:
       - name: Checkout del repositorio
         uses: actions/checkout@v4
         with:
+ develop
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.ref_name }}
+
+      - name: Actualizar README.md
+        run: |
+          BRANCH_NAME="${{ github.head_ref }}"
+          if [ -z "$BRANCH_NAME" ]; then
+            BRANCH_NAME="${{ github.ref_name }}"
+          fi
+          echo -e "\nAñadida feature: $BRANCH_NAME" >> README.md
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md
+          if ! git diff --staged --quiet; then
+            git commit -m "docs: actualizar README con feature $BRANCH_NAME [skip ci]"
+            git push origin HEAD:${{ github.ref_name }}
+          else
+            echo "Sin cambios en README.md"
+          fi
+
           ref: ${{ github.head_ref || github.ref_name }}
 
       - name: Actualizar README.md
@@ -28,6 +49,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add README.md
           git diff --quiet && git diff --staged --quiet || (git commit -m "docs: actualizar README con feature $BRANCH_NAME" && git push)
+ main
 
   validate-dev:
     needs: update-readme
@@ -41,9 +63,17 @@ jobs:
           $localDev = [System.Environment]::GetEnvironmentVariable('LOCAL_DEV_TOKEN', 'User')
           Write-Host "Comprobando DEV_TOKEN..."
           if ($env:DEV_TOKEN -eq $localDev) {
+ develop
+              Write-Host "Tokens de desarrollo coinciden perfectamente."
+              exit 0
+          }
+          Write-Error "ERROR: DEV_TOKEN no coincide con LOCAL_DEV_TOKEN."
+          exit 1
+
             Write-Host "Tokens de desarrollo coinciden perfectamente."
             exit 0
           } else {
             Write-Error "ERROR: DEV_TOKEN no coincide con LOCAL_DEV_TOKEN."
             exit 1
           }
+main
