@@ -49,15 +49,9 @@ jobs:
         run: |
           $localDev = [System.Environment]::GetEnvironmentVariable('LOCAL_DEV_TOKEN', 'User')
           Write-Host "Comprobando DEV_TOKEN..."
-          Write-Host "Secret DEV_TOKEN: $env:DEV_TOKEN"
-          Write-Host "Local DEV_TOKEN:  $localDev"
           if ($env:DEV_TOKEN -eq $localDev) {
-            Write-Host "Tokens de desarrollo coinciden perfectamente."
-            exit 0
-          } else {
-            Write-Error "ERROR: DEV_TOKEN no coincide con LOCAL_DEV_TOKEN."
-            exit 1
+              Write-Host "Tokens de desarrollo coinciden perfectamente."
+              exit 0
           }
-            Write-Error "ERROR: DEV_TOKEN no coincide con LOCAL_DEV_TOKEN."
-            exit 1
-          }
+          Write-Error "ERROR: DEV_TOKEN no coincide con LOCAL_DEV_TOKEN."
+          exit 1
